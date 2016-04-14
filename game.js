@@ -1,15 +1,28 @@
-(function() {
+;(function() {
+
+    // Main game object
+    // ----------------
+
+    // **new Game()** Creates the game object with the game state and logic.
+
     var Game = function (canvasId) {
+
+        // In index.html, there is a canvas tag that the game will be drawn in.
+        // Grab that canvas out of the DOM.
         var canvas = document.getElementById(canvasId);
+
+        // Get the drawing context.  This contains functions that let you draw to the canvas.
         var screen = canvas.getContext('2d');
+
+        // Note down the dimensions of the canvas.  These are used to
+        // place game bodies.
         var gameSize = {x: canvas.width, y: canvas.height};
 
         this.bodies = createInvaders(this).concat(new Player(this, gameSize));
-
         var self = this;
         loadSound("shoot.wav", function(shootSound){
             self.shootSound = shootSound;
-        })
+        });
         var tick = function () {
             self.update();
             self.draw(screen, gameSize);
@@ -69,10 +82,11 @@
             }
 
             if (this.keyboarder.isDown(this.keyboarder.KEYS.SPACE)) {
-                var bullet = new Bullet({ x: this.center.x, y: this.center.y - this.size.x - 2},
+                var bullet = new Bullet({ x: this.center.x, y: this.center.y - this.size.x / 2},
                 { x: 0, y: -6 });
                 this.game.addBody(bullet);
-
+                this.game.shootSound.load();
+                this.game.shootSound.play();
             }
         }
     };
@@ -98,8 +112,7 @@
                 var bullet = new Bullet({x: this.center.x, y: this.center.y + this.size.x / 2},
                     {x: Math.random() - 0.5, y: 2});
                 this.game.addBody(bullet);
-                this.game.shootSound.load();
-                this.game.shootSound.play();
+
             }
         }
     };
@@ -159,7 +172,7 @@
     var loadSound = function(url, callback) {
         var loaded = function() {
             callback(sound);
-            sound.removeEventListener(canplaythrough, loaded);
+            sound.removeEventListener('canplaythrough', loaded);
         };
         var sound = new Audio (url);
         sound.addEventListener('canplaythrough', loaded);
